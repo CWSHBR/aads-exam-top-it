@@ -13,8 +13,14 @@ int main(int argc, char* argv[])
   bool hasOutput = false;
   std::string inputName;
   std::string outputName;
+  if (argc > 3)
+  {
+    std::cerr << "Too many arguments\n";
+    return 0;
+  }
   if (!shaykhraziev::parseU1Args(argc, argv, hasInput, inputName, hasOutput, outputName))
   {
+    std::cerr << "Invalid arguments\n";
     return 1;
   }
   shaykhraziev::List< shaykhraziev::Person > persons;
@@ -33,6 +39,7 @@ int main(int argc, char* argv[])
       inputFile.open(inputName.c_str());
       if (!inputFile)
       {
+        std::cerr << "Cannot open input file\n";
         shaykhraziev::clearHashTable(personsById);
         shaykhraziev::clearList(persons);
         return 2;
@@ -52,6 +59,7 @@ int main(int argc, char* argv[])
       outputFile.open(outputName.c_str());
       if (!outputFile)
       {
+        std::cerr << "Cannot open output file\n";
         shaykhraziev::clearHashTable(personsById);
         shaykhraziev::clearList(persons);
         return 2;
@@ -59,10 +67,7 @@ int main(int argc, char* argv[])
       output = &outputFile;
     }
     shaykhraziev::writePersons(*output, persons);
-    if ((accepted != 0) || (ignored != 0))
-    {
-      std::cerr << accepted << ' ' << ignored << '\n';
-    }
+    std::cerr << accepted << ' ' << ignored << '\n';
   }
   catch (const std::exception&)
   {

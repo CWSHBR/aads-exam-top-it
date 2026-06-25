@@ -264,6 +264,22 @@ BOOST_AUTO_TEST_CASE(write_persons_preserves_order)
   std::remove(outputName);
 }
 
+BOOST_AUTO_TEST_CASE(write_empty_persons_outputs_newline)
+{
+  const char* outputName = "out/u1-write-empty-persons-output.txt";
+  shaykhraziev::List< shaykhraziev::Person > persons;
+  shaykhraziev::initList(persons);
+  std::ofstream output(outputName);
+
+  shaykhraziev::writePersons(output, persons);
+  output.close();
+
+  BOOST_TEST(readTextFile(outputName) == "\n");
+
+  shaykhraziev::clearList(persons);
+  std::remove(outputName);
+}
+
 BOOST_AUTO_TEST_CASE(read_persons_ignores_bad_lines)
 {
   const char* inputName = "out/u1-read-bad-persons-input.txt";

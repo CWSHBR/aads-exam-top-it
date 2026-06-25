@@ -79,10 +79,17 @@ void shaykhraziev::readPersons(std::istream& input,
 void shaykhraziev::writePersons(std::ostream& output, List< Person >& persons)
 {
   ListIterator< Person > iterator = begin(persons);
+  if (!isEnd(iterator))
+  {
+    const Person& person = get(iterator);
+    output << person.id << ' ' << person.info;
+    iterator = next(iterator);
+  }
   while (!isEnd(iterator))
   {
     const Person& person = get(iterator);
-    output << person.id << ' ' << person.info << '\n';
+    output << '\n' << person.id << ' ' << person.info;
     iterator = next(iterator);
   }
+  output << '\n';
 }
