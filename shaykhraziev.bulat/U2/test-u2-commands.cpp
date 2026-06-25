@@ -410,6 +410,39 @@ BOOST_AUTO_TEST_CASE(out_persons_after_redesc_anon)
   std::remove(filename);
 }
 
+BOOST_AUTO_TEST_CASE(out_persons_after_desc_update_acceptance_scenario)
+{
+  shaykhraziev::U2Storage storage;
+  shaykhraziev::initU2Storage(storage);
+  const bool known = true;
+  shaykhraziev::insert(storage.knownIds, static_cast< size_t >(100), known);
+  shaykhraziev::insert(storage.knownIds, static_cast< size_t >(31), known);
+  shaykhraziev::insert(storage.knownIds, static_cast< size_t >(33), known);
+  shaykhraziev::addPerson(storage.persons,
+      storage.personsById,
+      shaykhraziev::Person{ 100, "Sneaky person" });
+  shaykhraziev::addPerson(storage.persons,
+      storage.personsById,
+      shaykhraziev::Person{ 31, "Mr. Bond" });
+  const char* filename = "out/u2-out-persons-desc.txt";
+  const char* firstCopy = "out/u2-out-persons-desc-first.txt";
+  const char* descOutputName = "out/u2-out-persons-desc-output.txt";
+  std::ofstream descOutput(descOutputName);
+
+  BOOST_TEST(shaykhraziev::executeOutPersons(storage, std::string("out-persons ") + filename));
+  writeTextFile(firstCopy, readTextFile(filename).c_str());
+  BOOST_TEST(shaykhraziev::executeDesc(storage, "desc 33 \"Agent 007\"", descOutput));
+  descOutput.close();
+  BOOST_TEST(shaykhraziev::executeOutPersons(storage, std::string("out-persons ") + filename));
+  BOOST_TEST(readTextFile(firstCopy) + readTextFile(filename)
+      == "100 Sneaky person\n31 Mr. Bond\n100 Sneaky person\n31 Mr. Bond\n33 Agent 007\n");
+
+  shaykhraziev::clearU2Storage(storage);
+  std::remove(filename);
+  std::remove(firstCopy);
+  std::remove(descOutputName);
+}
+
 BOOST_AUTO_TEST_CASE(command_loop_runs_multiple_commands)
 {
   shaykhraziev::U2Storage storage;
