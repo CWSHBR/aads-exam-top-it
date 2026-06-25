@@ -111,3 +111,89 @@ BOOST_AUTO_TEST_CASE(pop_range_rolls_back)
 
   shaykhraziev::clearU3Storage(storage);
 }
+
+BOOST_AUTO_TEST_CASE(range_accepts_non_calendar_date_values)
+{
+  shaykhraziev::U3Storage storage;
+  shaykhraziev::initU3Storage(storage);
+  addDate(storage, 12, 33, 1946);
+  addDate(storage, 9, 99, 1700);
+  addDate(storage, 5, 5, 1005);
+  shaykhraziev::pushInitialRange(storage);
+  const char* filename = "out/u3-non-calendar-range.txt";
+  std::ofstream output(filename);
+
+  BOOST_TEST(shaykhraziev::executeRange(storage, "range", output));
+  output.close();
+  BOOST_TEST(readTextFile(filename) == "5 5 1005 : 12 33 1946\n");
+
+  shaykhraziev::clearU3Storage(storage);
+  std::remove(filename);
+}
+
+BOOST_AUTO_TEST_CASE(after_empty_range_rejects_next_after)
+{
+  shaykhraziev::U3Storage storage;
+  shaykhraziev::initU3Storage(storage);
+  addDate(storage, 5, 5, 1005);
+  addDate(storage, 9, 99, 1700);
+  shaykhraziev::pushInitialRange(storage);
+  const char* filename = "out/u3-after-empty-range.txt";
+  std::ofstream output(filename);
+
+  BOOST_TEST(shaykhraziev::executeAfter(storage, "after 65 832 1889"));
+  BOOST_TEST(shaykhraziev::executeRange(storage, "range", output));
+  BOOST_TEST(!shaykhraziev::executeAfter(storage, "after 10 10 1010"));
+  output.close();
+  BOOST_TEST(readTextFile(filename) == "<EMPTY>\n");
+
+  shaykhraziev::clearU3Storage(storage);
+  std::remove(filename);
+}
+
+BOOST_AUTO_TEST_CASE(before_empty_and_pop_range_restore_initial)
+{
+  shaykhraziev::U3Storage storage;
+  shaykhraziev::initU3Storage(storage);
+  addDate(storage, 5, 5, 1005);
+  addDate(storage, 12, 33, 1946);
+  shaykhraziev::pushInitialRange(storage);
+  const char* filename = "out/u3-before-pop-range.txt";
+  std::ofstream output(filename);
+
+  BOOST_TEST(shaykhraziev::executeBefore(storage, "before 5 5 1004"));
+  BOOST_TEST(shaykhraziev::executeRange(storage, "range", output));
+  BOOST_TEST(!shaykhraziev::executeBefore(storage, "before 1 1 1000"));
+  BOOST_TEST(shaykhraziev::executePopRange(storage, "pop-range"));
+  BOOST_TEST(shaykhraziev::executeRange(storage, "range", output));
+  output.close();
+  BOOST_TEST(readTextFile(filename) == "<EMPTY>\n5 5 1005 : 12 33 1946\n");
+
+  shaykhraziev::clearU3Storage(storage);
+  std::remove(filename);
+}
+
+BOOST_AUTO_TEST_CASE(after_before_pop_keeps_previous_non_calendar_range)
+{
+  shaykhraziev::U3Storage storage;
+  shaykhraziev::initU3Storage(storage);
+  addDate(storage, 9, 99, 1700);
+  addDate(storage, 11, 33, 1945);
+  addDate(storage, 12, 33, 1946);
+  shaykhraziev::pushInitialRange(storage);
+  const char* filename = "out/u3-after-before-pop-range.txt";
+  std::ofstream output(filename);
+
+  BOOST_TEST(shaykhraziev::executeAfter(storage, "after 11 10 1010"));
+  BOOST_TEST(shaykhraziev::executeBefore(storage, "before 12 33 1945"));
+  BOOST_TEST(shaykhraziev::executeRange(storage, "range", output));
+  BOOST_TEST(shaykhraziev::executePopRange(storage, "pop-range"));
+  BOOST_TEST(shaykhraziev::executeRange(storage, "range", output));
+  output.close();
+  BOOST_TEST(readTextFile(filename) ==
+      "9 99 1700 : 11 33 1945\n"
+      "9 99 1700 : 12 33 1946\n");
+
+  shaykhraziev::clearU3Storage(storage);
+  std::remove(filename);
+}

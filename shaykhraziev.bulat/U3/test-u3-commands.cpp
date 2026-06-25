@@ -106,6 +106,31 @@ BOOST_AUTO_TEST_CASE(u3_meets_respects_range)
   std::remove(filename);
 }
 
+BOOST_AUTO_TEST_CASE(u3_meet_after_acceptance_range)
+{
+  shaykhraziev::U3Storage storage;
+  shaykhraziev::initU3Storage(storage);
+  addKnown(storage, 31);
+  addKnown(storage, 32);
+  addKnown(storage, 33);
+  addKnown(storage, 41);
+  addMeeting(storage, shaykhraziev::Date{ 5, 5, 1005 }, 100, 33, 5);
+  addMeeting(storage, shaykhraziev::Date{ 9, 99, 1700 }, 33, 31, 10);
+  addMeeting(storage, shaykhraziev::Date{ 11, 33, 1945 }, 33, 32, 11);
+  addMeeting(storage, shaykhraziev::Date{ 12, 33, 1946 }, 33, 41, 10);
+  shaykhraziev::pushInitialRange(storage);
+  const char* filename = "out/u3-meet-after-acceptance.txt";
+  std::ofstream output(filename);
+
+  BOOST_TEST(shaykhraziev::executeAfter(storage, "after 10 10 1010"));
+  BOOST_TEST(shaykhraziev::executeMeets(storage, "meet 33", output));
+  output.close();
+  BOOST_TEST(readTextFile(filename) == "31 10\n32 11\n41 10\n");
+
+  shaykhraziev::clearU3Storage(storage);
+  std::remove(filename);
+}
+
 BOOST_AUTO_TEST_CASE(u3_less_greater_respect_range)
 {
   shaykhraziev::U3Storage storage;

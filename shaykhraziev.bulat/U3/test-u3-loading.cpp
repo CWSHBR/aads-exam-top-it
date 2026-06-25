@@ -26,6 +26,10 @@ BOOST_AUTO_TEST_CASE(parse_dated_meeting_line)
   BOOST_TEST(meeting.first == 31);
   BOOST_TEST(meeting.second == 33);
   BOOST_TEST(meeting.duration == 99);
+  BOOST_TEST(shaykhraziev::parseDatedMeetingLine("9 99 1700 31 33 10", meeting));
+  BOOST_TEST(meeting.date.day == 9);
+  BOOST_TEST(meeting.date.month == 99);
+  BOOST_TEST(meeting.date.year == 1700);
   BOOST_TEST(!shaykhraziev::parseDatedMeetingLine("10 5 2024 31 33", meeting));
   BOOST_TEST(!shaykhraziev::parseDatedMeetingLine("10 5 2024 31 33 99 tail", meeting));
 }
@@ -49,6 +53,31 @@ BOOST_AUTO_TEST_CASE(read_dated_meetings_updates_known_ids_and_dates)
   BOOST_TEST(dates.tail->value.day == 10);
   BOOST_TEST(shaykhraziev::contains(knownIds, static_cast< size_t >(31)));
   BOOST_TEST(!shaykhraziev::contains(knownIds, static_cast< size_t >(99)));
+
+  shaykhraziev::clearHashTable(knownIds);
+  shaykhraziev::clearList(dates);
+  shaykhraziev::clearList(meetings);
+  std::remove(filename);
+}
+
+BOOST_AUTO_TEST_CASE(read_dated_meetings_keeps_self_meeting_dates)
+{
+  const char* filename = "out/u3-self-dated-meeting.txt";
+  writeTextFile(filename, "9 99 1700 33 33 1\n");
+  std::ifstream input(filename);
+  shaykhraziev::List< shaykhraziev::DatedMeeting > meetings;
+  shaykhraziev::List< shaykhraziev::Date > dates;
+  shaykhraziev::HashTable< size_t, bool > knownIds;
+  shaykhraziev::initList(meetings);
+  shaykhraziev::initList(dates);
+  shaykhraziev::initHashTable(knownIds, 17, shaykhraziev::hashSizeT, shaykhraziev::equalSizeT);
+
+  BOOST_TEST(shaykhraziev::readDatedMeetings(input, meetings, knownIds, dates));
+  BOOST_TEST(meetings.size == 0);
+  BOOST_TEST(dates.size == 1);
+  BOOST_TEST(dates.head->value.day == 9);
+  BOOST_TEST(dates.head->value.month == 99);
+  BOOST_TEST(dates.head->value.year == 1700);
 
   shaykhraziev::clearHashTable(knownIds);
   shaykhraziev::clearList(dates);

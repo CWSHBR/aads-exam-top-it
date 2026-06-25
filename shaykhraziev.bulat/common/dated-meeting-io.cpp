@@ -64,13 +64,13 @@ bool shaykhraziev::readDatedMeetings(std::istream& input,
     {
       return false;
     }
+    insertOrderedUniqueDate(dates, meeting.date);
     if (meeting.first != meeting.second)
     {
       const bool known = true;
       insert(knownIds, meeting.first, known);
       insert(knownIds, meeting.second, known);
       pushBack(meetings, meeting);
-      insertOrderedUniqueDate(dates, meeting.date);
     }
   }
   return true;
