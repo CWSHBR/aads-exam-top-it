@@ -5,6 +5,19 @@
 
 namespace
 {
+  bool isInputDateLess(const shaykhraziev::Date& left, const shaykhraziev::Date& right)
+  {
+    if (left.day != right.day)
+    {
+      return left.day < right.day;
+    }
+    if (left.month != right.month)
+    {
+      return left.month < right.month;
+    }
+    return left.year < right.year;
+  }
+
   bool parseCommandPrefix(const std::string& line, const char* command, size_t& position)
   {
     if (!shaykhraziev::startsWith(line, command))
@@ -106,6 +119,12 @@ bool shaykhraziev::executeAfter(U3Storage& storage, const std::string& line)
   if (!parseDateCommand(line, "after", requested) || (current == nullptr) || current->empty)
   {
     return false;
+  }
+  if (isInputDateLess(current->to, requested))
+  {
+    const DateRange range = { Date{ 0, 0, 0 }, Date{ 0, 0, 0 }, true };
+    pushBack(storage.ranges, range);
+    return true;
   }
   ListIterator< Date > iterator = begin(storage.dates);
   while (!isEnd(iterator))

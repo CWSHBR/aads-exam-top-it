@@ -100,19 +100,23 @@ BOOST_AUTO_TEST_CASE(command_loop_eof_without_commands)
 BOOST_AUTO_TEST_CASE(load_invalid_looking_dates_and_meet_after_range)
 {
   const char* personsName = "out/u3-invalid-looking-persons.txt";
-  const char* dataName = "out/u3-invalid-looking-data.txt";
+  const char* firstData = "out/u3-invalid-looking-first-data.txt";
+  const char* secondData = "out/u3-invalid-looking-second-data.txt";
   const char* commandsName = "out/u3-invalid-looking-commands.txt";
   const char* outputName = "out/u3-invalid-looking-output.txt";
   writeTextFile(personsName, "31 Mr. Bond\n32 Some person\n41 Other person\n");
-  writeTextFile(dataName,
-      "9 99 1700 33 31 10\n"
+  writeTextFile(firstData,
+      "5 5 1005 33 31 5\n"
+      "9 99 1700 33 31 10\n");
+  writeTextFile(secondData,
       "11 33 1945 33 32 11\n"
       "12 33 1946 33 41 10\n");
   writeTextFile(commandsName, "after 10 10 1010\nmeets 33\n");
   char arg0[] = "lab";
   char arg1[] = "in:out/u3-invalid-looking-persons.txt";
-  char arg2[] = "data:out/u3-invalid-looking-data.txt";
-  char* argv[] = { arg0, arg1, arg2 };
+  char arg2[] = "data:out/u3-invalid-looking-first-data.txt";
+  char arg3[] = "data:out/u3-invalid-looking-second-data.txt";
+  char* argv[] = { arg0, arg1, arg2, arg3 };
   shaykhraziev::U3Args args;
   shaykhraziev::U3Storage storage;
   shaykhraziev::initU3Args(args);
@@ -120,7 +124,7 @@ BOOST_AUTO_TEST_CASE(load_invalid_looking_dates_and_meet_after_range)
   std::ifstream commands(commandsName);
   std::ofstream output(outputName);
 
-  BOOST_TEST(shaykhraziev::parseU3Args(3, argv, args));
+  BOOST_TEST(shaykhraziev::parseU3Args(4, argv, args));
   BOOST_TEST(shaykhraziev::loadU3Data(args, storage) == 0);
   shaykhraziev::runCommandLoop(storage, commands, output);
   output.close();
@@ -129,7 +133,8 @@ BOOST_AUTO_TEST_CASE(load_invalid_looking_dates_and_meet_after_range)
   shaykhraziev::clearU3Storage(storage);
   shaykhraziev::clearU3Args(args);
   std::remove(personsName);
-  std::remove(dataName);
+  std::remove(firstData);
+  std::remove(secondData);
   std::remove(commandsName);
   std::remove(outputName);
 }
@@ -179,7 +184,8 @@ BOOST_AUTO_TEST_CASE(after_empty_range_then_next_after_invalid)
   const char* outputName = "out/u3-after-empty-output.txt";
   writeTextFile(dataName,
       "5 5 1005 33 31 10\n"
-      "9 99 1700 33 32 11\n");
+      "9 99 1700 33 32 11\n"
+      "12 33 1946 33 41 10\n");
   writeTextFile(commandsName,
       "after 65 832 1889\n"
       "range\n"

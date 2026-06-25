@@ -137,6 +137,7 @@ BOOST_AUTO_TEST_CASE(after_empty_range_rejects_next_after)
   shaykhraziev::initU3Storage(storage);
   addDate(storage, 5, 5, 1005);
   addDate(storage, 9, 99, 1700);
+  addDate(storage, 12, 33, 1946);
   shaykhraziev::pushInitialRange(storage);
   const char* filename = "out/u3-after-empty-range.txt";
   std::ofstream output(filename);

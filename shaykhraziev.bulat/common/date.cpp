@@ -2,6 +2,22 @@
 #include <ostream>
 #include "../common/ordered-list.hpp"
 
+namespace
+{
+  bool isInputDateLess(const shaykhraziev::Date& left, const shaykhraziev::Date& right)
+  {
+    if (left.day != right.day)
+    {
+      return left.day < right.day;
+    }
+    if (left.month != right.month)
+    {
+      return left.month < right.month;
+    }
+    return left.year < right.year;
+  }
+}
+
 int shaykhraziev::compareDates(const Date& left, const Date& right)
 {
   if (left.year != right.year)
@@ -67,5 +83,6 @@ bool shaykhraziev::insertOrderedUniqueDate(List< Date >& dates, const Date& date
 bool shaykhraziev::isDateInsideRange(const Date& date, const DateRange& range)
 {
   return !range.empty && isDateGreaterOrEqual(date, range.from)
-      && isDateLessOrEqual(date, range.to);
+      && isDateLessOrEqual(date, range.to)
+      && !isInputDateLess(date, range.from);
 }
