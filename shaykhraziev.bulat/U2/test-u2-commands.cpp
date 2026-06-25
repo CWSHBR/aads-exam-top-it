@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE(less_filters_meetings)
 
   BOOST_TEST(shaykhraziev::executeLess(storage, "less 50 33", output));
   output.close();
-  BOOST_TEST(readTextFile(filename) == "31\n32\n");
+  BOOST_TEST(readTextFile(filename) == "31 10\n32 11\n");
 
   shaykhraziev::clearU2Storage(storage);
   std::remove(filename);
@@ -280,7 +280,7 @@ BOOST_AUTO_TEST_CASE(greater_filters_meetings)
 
   BOOST_TEST(shaykhraziev::executeGreater(storage, "greater 50 33", output));
   output.close();
-  BOOST_TEST(readTextFile(filename) == "31\n");
+  BOOST_TEST(readTextFile(filename) == "31 99\n");
 
   shaykhraziev::clearU2Storage(storage);
   std::remove(filename);
@@ -303,7 +303,7 @@ BOOST_AUTO_TEST_CASE(less_greater_acceptance_format)
   BOOST_TEST(shaykhraziev::executeLess(storage, "less 10 31", output));
   BOOST_TEST(shaykhraziev::executeGreater(storage, "greater 9 41", output));
   output.close();
-  BOOST_TEST(readTextFile(filename) == "33\n33\n32\n28\n");
+  BOOST_TEST(readTextFile(filename) == "33 9\n28 80\n32 20\n33 10\n");
 
   shaykhraziev::clearU2Storage(storage);
   std::remove(filename);
@@ -444,6 +444,8 @@ BOOST_AUTO_TEST_CASE(out_persons_writes_only_described_people)
   initCommandStorage(storage);
   const char* filename = "out/u2-out-persons.txt";
   const char* outputName = "out/u2-out-persons-output.txt";
+  std::remove(filename);
+  std::remove(outputName);
   std::ofstream output(outputName);
 
   BOOST_TEST(shaykhraziev::executeOutPersons(storage,
@@ -451,7 +453,7 @@ BOOST_AUTO_TEST_CASE(out_persons_writes_only_described_people)
       output));
   output.close();
   BOOST_TEST(readTextFile(filename) == "31 The Agent\n");
-  BOOST_TEST(readTextFile(outputName) == "31 The Agent\n");
+  BOOST_TEST(readTextFile(outputName).empty());
 
   shaykhraziev::clearU2Storage(storage);
   std::remove(filename);
@@ -464,6 +466,8 @@ BOOST_AUTO_TEST_CASE(out_persons_after_redesc_anon)
   initCommandStorage(storage);
   const char* filename = "out/u2-out-persons-redesc.txt";
   const char* outputName = "out/u2-out-persons-redesc-output.txt";
+  std::remove(filename);
+  std::remove(outputName);
   std::ofstream output(outputName);
 
   BOOST_TEST(shaykhraziev::executeRedesc(storage, "redesc 32 \"Known\""));
@@ -472,7 +476,7 @@ BOOST_AUTO_TEST_CASE(out_persons_after_redesc_anon)
       output));
   output.close();
   BOOST_TEST(readTextFile(filename) == "31 The Agent\n32 Known\n");
-  BOOST_TEST(readTextFile(outputName) == "31 The Agent\n32 Known\n");
+  BOOST_TEST(readTextFile(outputName).empty());
 
   shaykhraziev::clearU2Storage(storage);
   std::remove(filename);
@@ -496,6 +500,9 @@ BOOST_AUTO_TEST_CASE(out_persons_after_desc_update_acceptance_scenario)
   const char* filename = "out/u2-out-persons-desc.txt";
   const char* descOutputName = "out/u2-out-persons-desc-output.txt";
   const char* stdoutName = "out/u2-out-persons-desc-stdout.txt";
+  std::remove(filename);
+  std::remove(descOutputName);
+  std::remove(stdoutName);
   std::ofstream stdoutOutput(stdoutName);
   std::ofstream descOutput(descOutputName);
 
@@ -508,9 +515,9 @@ BOOST_AUTO_TEST_CASE(out_persons_after_desc_update_acceptance_scenario)
       std::string("out-persons ") + filename,
       stdoutOutput));
   stdoutOutput.close();
-  BOOST_TEST(readTextFile(stdoutName)
+  BOOST_TEST(readTextFile(stdoutName).empty());
+  BOOST_TEST(readTextFile(filename)
       == "100 Sneaky person\n31 Mr. Bond\n100 Sneaky person\n31 Mr. Bond\n33 Agent 007\n");
-  BOOST_TEST(readTextFile(filename) == "100 Sneaky person\n31 Mr. Bond\n33 Agent 007\n");
 
   shaykhraziev::clearU2Storage(storage);
   std::remove(filename);

@@ -196,12 +196,12 @@ namespace
       if ((meeting.first == id) && shouldUseMeeting(meeting.duration, mode, time))
       {
         const shaykhraziev::MeetView view = { meeting.second, meeting.duration };
-        shaykhraziev::insertOrderedDurationView(views, view);
+        shaykhraziev::insertOrderedMeetView(views, view);
       }
       else if ((meeting.second == id) && shouldUseMeeting(meeting.duration, mode, time))
       {
         const shaykhraziev::MeetView view = { meeting.first, meeting.duration };
-        shaykhraziev::insertOrderedDurationView(views, view);
+        shaykhraziev::insertOrderedMeetView(views, view);
       }
       iterator = shaykhraziev::next(iterator);
     }
@@ -241,21 +241,6 @@ namespace
     return true;
   }
 
-  void printMeetIds(shaykhraziev::List< shaykhraziev::MeetView >& views, std::ostream& output)
-  {
-    if (views.size == 0)
-    {
-      output << '\n';
-      return;
-    }
-    shaykhraziev::ListIterator< shaykhraziev::MeetView > iterator = shaykhraziev::begin(views);
-    while (!shaykhraziev::isEnd(iterator))
-    {
-      output << shaykhraziev::get(iterator).id << '\n';
-      iterator = shaykhraziev::next(iterator);
-    }
-  }
-
   bool executeDurationQuery(shaykhraziev::U2Storage& storage,
       size_t id,
       char mode,
@@ -269,7 +254,7 @@ namespace
     shaykhraziev::List< shaykhraziev::MeetView > views;
     shaykhraziev::initList(views);
     collectDurationViews(storage, id, mode, time, views);
-    printMeetIds(views, output);
+    printMeetViews(views, output);
     shaykhraziev::clearList(views);
     return true;
   }
@@ -501,18 +486,18 @@ bool shaykhraziev::executeOutPersons(U2Storage& storage,
     const std::string& line,
     std::ostream& result)
 {
+  static_cast< void >(result);
   std::string filename;
   if (!parseFileCommand(line, "out-persons", filename))
   {
     return false;
   }
-  std::ofstream output(filename.c_str());
+  std::ofstream output(filename.c_str(), std::ios::app);
   if (!output)
   {
     return false;
   }
   writePersons(output, storage.persons);
-  writePersons(result, storage.persons);
   return true;
 }
 
