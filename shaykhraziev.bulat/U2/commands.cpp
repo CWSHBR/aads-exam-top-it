@@ -1,5 +1,6 @@
 #include "commands.hpp"
 #include <fstream>
+#include <istream>
 #include <ostream>
 #include "../common/ordered-list.hpp"
 #include "../common/parse.hpp"
@@ -38,6 +39,16 @@ namespace
       return false;
     }
     return true;
+  }
+
+  bool parseExactCommand(const std::string& line, const char* command)
+  {
+    size_t position = 0;
+    if (!parseCommandPrefix(line, command, position))
+    {
+      return false;
+    }
+    return shaykhraziev::skipSpaces(line, position) == line.size();
   }
 
   bool parseIdCommand(const std::string& line, const char* command, size_t& id)
@@ -418,4 +429,59 @@ bool shaykhraziev::executeOutPersons(U2Storage& storage, const std::string& line
   }
   writePersons(output, storage.persons);
   return true;
+}
+
+bool shaykhraziev::executeCommand(U2Storage& storage,
+    const std::string& line,
+    std::ostream& output)
+{
+  if (parseExactCommand(line, "anons"))
+  {
+    return executeAnons(storage, output);
+  }
+  if (startsWith(line, "desc"))
+  {
+    return executeDesc(storage, line, output);
+  }
+  if (startsWith(line, "redesc"))
+  {
+    return executeRedesc(storage, line);
+  }
+  if (startsWith(line, "meets"))
+  {
+    return executeMeets(storage, line, output);
+  }
+  if (startsWith(line, "less"))
+  {
+    return executeLess(storage, line, output);
+  }
+  if (startsWith(line, "greater"))
+  {
+    return executeGreater(storage, line, output);
+  }
+  if (startsWith(line, "commons"))
+  {
+    return executeCommons(storage, line, output);
+  }
+  if (startsWith(line, "deanon"))
+  {
+    return executeDeanon(storage, line);
+  }
+  if (startsWith(line, "out-persons"))
+  {
+    return executeOutPersons(storage, line);
+  }
+  return false;
+}
+
+void shaykhraziev::runCommandLoop(U2Storage& storage, std::istream& input, std::ostream& output)
+{
+  std::string line;
+  while (std::getline(input, line))
+  {
+    if (!executeCommand(storage, line, output))
+    {
+      output << "<INVALID COMMAND>\n";
+    }
+  }
 }

@@ -35,6 +35,12 @@ namespace
     const shaykhraziev::Meeting meeting = { first, second, duration };
     shaykhraziev::pushBack(storage.meetings, meeting);
   }
+
+  void writeTextFile(const char* filename, const char* text)
+  {
+    std::ofstream output(filename);
+    output << text;
+  }
 }
 
 BOOST_AUTO_TEST_CASE(anons_empty_output_when_no_anons)
@@ -327,4 +333,56 @@ BOOST_AUTO_TEST_CASE(out_persons_after_redesc_anon)
 
   shaykhraziev::clearU2Storage(storage);
   std::remove(filename);
+}
+
+BOOST_AUTO_TEST_CASE(command_loop_runs_multiple_commands)
+{
+  shaykhraziev::U2Storage storage;
+  initCommandStorage(storage);
+  addMeeting(storage, 33, 31, 10);
+  addMeeting(storage, 33, 32, 11);
+  const char* inputName = "out/u2-command-input.txt";
+  const char* outputName = "out/u2-command-output.txt";
+  writeTextFile(inputName,
+      "anons\n"
+      "desc 31\n"
+      "meets 33\n"
+      "unknown\n");
+  std::ifstream input(inputName);
+  std::ofstream output(outputName);
+
+  shaykhraziev::runCommandLoop(storage, input, output);
+  output.close();
+  BOOST_TEST(readTextFile(outputName) == "32\n33\nThe Agent\n31 10\n32 11\n<INVALID COMMAND>\n");
+
+  shaykhraziev::clearU2Storage(storage);
+  std::remove(inputName);
+  std::remove(outputName);
+}
+
+BOOST_AUTO_TEST_CASE(command_loop_full_scenario)
+{
+  shaykhraziev::U2Storage storage;
+  initCommandStorage(storage);
+  addMeeting(storage, 33, 31, 10);
+  addMeeting(storage, 33, 32, 11);
+  addMeeting(storage, 31, 32, 99);
+  const char* inputName = "out/u2-full-command-input.txt";
+  const char* outputName = "out/u2-full-command-output.txt";
+  writeTextFile(inputName,
+      "commons 33 31\n"
+      "redesc 32 \"Known\"\n"
+      "desc 32\n"
+      "deanon 33 31\n"
+      "anons\n");
+  std::ifstream input(inputName);
+  std::ofstream output(outputName);
+
+  shaykhraziev::runCommandLoop(storage, input, output);
+  output.close();
+  BOOST_TEST(readTextFile(outputName) == "32\nKnown\n");
+
+  shaykhraziev::clearU2Storage(storage);
+  std::remove(inputName);
+  std::remove(outputName);
 }

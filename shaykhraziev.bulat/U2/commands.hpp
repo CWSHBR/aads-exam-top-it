@@ -16,6 +16,8 @@ namespace shaykhraziev
   bool executeCommons(U2Storage& storage, const std::string& line, std::ostream& output);
   bool executeDeanon(U2Storage& storage, const std::string& line);
   bool executeOutPersons(U2Storage& storage, const std::string& line);
+  bool executeCommand(U2Storage& storage, const std::string& line, std::ostream& output);
+  void runCommandLoop(U2Storage& storage, std::istream& input, std::ostream& output);
 }
 
 #endif
