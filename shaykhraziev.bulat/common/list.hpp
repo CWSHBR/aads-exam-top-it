@@ -110,12 +110,6 @@ namespace shaykhraziev
   }
 
   template< class T >
-  const T& getConst(ListIterator< T > iterator)
-  {
-    return iterator.node->value;
-  }
-
-  template< class T >
   ListIterator< T > erase(List< T >& list, ListIterator< T > iterator)
   {
     if (iterator.node == nullptr)

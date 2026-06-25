@@ -85,28 +85,6 @@ namespace shaykhraziev
   }
 
   template< class Key, class Value >
-  const Value* findConst(const HashTable< Key, Value >& table, const Key& key)
-  {
-    if ((table.buckets == nullptr) || (table.bucketCount == 0))
-    {
-      return nullptr;
-    }
-    const size_t index = table.hash(key) % table.bucketCount;
-    ListIterator< HashEntry< Key, Value > > iterator;
-    iterator.node = table.buckets[index].head;
-    while (!isEnd(iterator))
-    {
-      const HashEntry< Key, Value >& entry = getConst(iterator);
-      if (table.equal(entry.key, key))
-      {
-        return &entry.value;
-      }
-      iterator = next(iterator);
-    }
-    return nullptr;
-  }
-
-  template< class Key, class Value >
   bool contains(HashTable< Key, Value >& table, const Key& key)
   {
     return find(table, key) != nullptr;
@@ -182,7 +160,7 @@ namespace shaykhraziev
         ListIterator< HashEntry< Key, Value > > iterator = begin(table.buckets[i]);
         while (!isEnd(iterator))
         {
-          const HashEntry< Key, Value >& entry = getConst(iterator);
+          const HashEntry< Key, Value >& entry = get(iterator);
           insert(newTable, entry.key, entry.value);
           iterator = next(iterator);
         }

@@ -77,7 +77,7 @@ void shaykhraziev::writePersons(std::ostream& output, List< Person >& persons)
   ListIterator< Person > iterator = begin(persons);
   while (!isEnd(iterator))
   {
-    const Person& person = getConst(iterator);
+    const Person& person = get(iterator);
     output << person.id << ' ' << person.info << '\n';
     iterator = next(iterator);
   }
