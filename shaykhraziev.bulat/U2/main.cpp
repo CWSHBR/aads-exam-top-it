@@ -6,6 +6,11 @@
 int main(int argc, char* argv[])
 {
   shaykhraziev::U2Args args;
+  if (argc > 3)
+  {
+    std::cerr << "Too many arguments\n";
+    return 0;
+  }
   if (!shaykhraziev::parseU2Args(argc, argv, args))
   {
     std::cerr << "Invalid arguments\n";

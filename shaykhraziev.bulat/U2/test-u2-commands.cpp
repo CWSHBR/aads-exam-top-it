@@ -108,6 +108,22 @@ BOOST_AUTO_TEST_CASE(desc_anon_person)
   std::remove(filename);
 }
 
+BOOST_AUTO_TEST_CASE(desc_updates_anon_person)
+{
+  shaykhraziev::U2Storage storage;
+  initCommandStorage(storage);
+  const char* filename = "out/u2-desc-update.txt";
+  std::ofstream output(filename);
+
+  BOOST_TEST(shaykhraziev::executeDesc(storage, "desc 33 \"Agent 007\"", output));
+  BOOST_TEST(shaykhraziev::executeDesc(storage, "desc 33", output));
+  output.close();
+  BOOST_TEST(readTextFile(filename) == "Agent 007\n");
+
+  shaykhraziev::clearU2Storage(storage);
+  std::remove(filename);
+}
+
 BOOST_AUTO_TEST_CASE(desc_unknown_person_is_invalid)
 {
   shaykhraziev::U2Storage storage;
@@ -191,7 +207,7 @@ BOOST_AUTO_TEST_CASE(meets_outputs_sorted_values)
   const char* filename = "out/u2-meets-sorted.txt";
   std::ofstream output(filename);
 
-  BOOST_TEST(shaykhraziev::executeMeets(storage, "meets 33", output));
+  BOOST_TEST(shaykhraziev::executeMeets(storage, "meet 33", output));
   output.close();
   BOOST_TEST(readTextFile(filename) == "31 10\n31 99\n32 11\n");
 

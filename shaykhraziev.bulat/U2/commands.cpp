@@ -117,10 +117,13 @@ namespace
     return true;
   }
 
-  bool parseRedescCommand(const std::string& line, size_t& id, std::string& description)
+  bool parseDescriptionCommand(const std::string& line,
+      const char* command,
+      size_t& id,
+      std::string& description)
   {
     size_t position = 0;
-    if (!parseCommandPrefix(line, "redesc", position))
+    if (!parseCommandPrefix(line, command, position))
     {
       return false;
     }
@@ -252,6 +255,22 @@ bool shaykhraziev::executeAnons(U2Storage& storage, std::ostream& output)
 bool shaykhraziev::executeDesc(U2Storage& storage, const std::string& line, std::ostream& output)
 {
   size_t id = 0;
+  std::string description;
+  if (parseDescriptionCommand(line, "desc", id, description))
+  {
+    if (!contains(storage.knownIds, id))
+    {
+      return false;
+    }
+    Person* person = findPersonById(storage.personsById, id);
+    if (person != nullptr)
+    {
+      person->info = description;
+      return true;
+    }
+    const Person newPerson = { id, description };
+    return addPerson(storage.persons, storage.personsById, newPerson);
+  }
   if (!parseIdCommand(line, "desc", id) || !contains(storage.knownIds, id))
   {
     return false;
@@ -272,7 +291,7 @@ bool shaykhraziev::executeRedesc(U2Storage& storage, const std::string& line)
 {
   size_t id = 0;
   std::string description;
-  if (!parseRedescCommand(line, id, description) || !contains(storage.knownIds, id))
+  if (!parseDescriptionCommand(line, "redesc", id, description) || !contains(storage.knownIds, id))
   {
     return false;
   }
@@ -289,7 +308,7 @@ bool shaykhraziev::executeRedesc(U2Storage& storage, const std::string& line)
 bool shaykhraziev::executeMeets(U2Storage& storage, const std::string& line, std::ostream& output)
 {
   size_t id = 0;
-  if (!parseIdCommand(line, "meets", id))
+  if (!parseIdCommand(line, "meet", id) && !parseIdCommand(line, "meets", id))
   {
     return false;
   }
@@ -447,7 +466,7 @@ bool shaykhraziev::executeCommand(U2Storage& storage,
   {
     return executeRedesc(storage, line);
   }
-  if (startsWith(line, "meets"))
+  if (startsWith(line, "meet"))
   {
     return executeMeets(storage, line, output);
   }
