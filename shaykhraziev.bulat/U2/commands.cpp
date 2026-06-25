@@ -182,6 +182,31 @@ namespace
     }
   }
 
+  void collectDurationViews(shaykhraziev::U2Storage& storage,
+      size_t id,
+      char mode,
+      size_t time,
+      shaykhraziev::List< shaykhraziev::MeetView >& views)
+  {
+    shaykhraziev::ListIterator< shaykhraziev::Meeting > iterator =
+        shaykhraziev::begin(storage.meetings);
+    while (!shaykhraziev::isEnd(iterator))
+    {
+      const shaykhraziev::Meeting& meeting = shaykhraziev::get(iterator);
+      if ((meeting.first == id) && shouldUseMeeting(meeting.duration, mode, time))
+      {
+        const shaykhraziev::MeetView view = { meeting.second, meeting.duration };
+        shaykhraziev::insertOrderedDurationView(views, view);
+      }
+      else if ((meeting.second == id) && shouldUseMeeting(meeting.duration, mode, time))
+      {
+        const shaykhraziev::MeetView view = { meeting.first, meeting.duration };
+        shaykhraziev::insertOrderedDurationView(views, view);
+      }
+      iterator = shaykhraziev::next(iterator);
+    }
+  }
+
   void printMeetViews(shaykhraziev::List< shaykhraziev::MeetView >& views, std::ostream& output)
   {
     if (views.size == 0)
@@ -212,6 +237,39 @@ namespace
     shaykhraziev::initList(views);
     collectMeetViews(storage, id, mode, time, views);
     printMeetViews(views, output);
+    shaykhraziev::clearList(views);
+    return true;
+  }
+
+  void printMeetIds(shaykhraziev::List< shaykhraziev::MeetView >& views, std::ostream& output)
+  {
+    if (views.size == 0)
+    {
+      output << '\n';
+      return;
+    }
+    shaykhraziev::ListIterator< shaykhraziev::MeetView > iterator = shaykhraziev::begin(views);
+    while (!shaykhraziev::isEnd(iterator))
+    {
+      output << shaykhraziev::get(iterator).id << '\n';
+      iterator = shaykhraziev::next(iterator);
+    }
+  }
+
+  bool executeDurationQuery(shaykhraziev::U2Storage& storage,
+      size_t id,
+      char mode,
+      size_t time,
+      std::ostream& output)
+  {
+    if (!shaykhraziev::contains(storage.knownIds, id))
+    {
+      return false;
+    }
+    shaykhraziev::List< shaykhraziev::MeetView > views;
+    shaykhraziev::initList(views);
+    collectDurationViews(storage, id, mode, time, views);
+    printMeetIds(views, output);
     shaykhraziev::clearList(views);
     return true;
   }
@@ -328,7 +386,7 @@ bool shaykhraziev::executeLess(U2Storage& storage, const std::string& line, std:
   {
     return false;
   }
-  return executeMeetQuery(storage, id, 'l', time, output);
+  return executeDurationQuery(storage, id, 'l', time, output);
 }
 
 bool shaykhraziev::executeGreater(U2Storage& storage,
@@ -341,7 +399,7 @@ bool shaykhraziev::executeGreater(U2Storage& storage,
   {
     return false;
   }
-  return executeMeetQuery(storage, id, 'g', time, output);
+  return executeDurationQuery(storage, id, 'g', time, output);
 }
 
 bool shaykhraziev::executeCommons(U2Storage& storage,

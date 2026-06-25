@@ -11,6 +11,12 @@ namespace shaykhraziev
     return (left.id < right.id) || ((left.id == right.id) && (left.duration < right.duration));
   }
 
+  inline bool isLessDurationView(const MeetView& left, const MeetView& right)
+  {
+    return (left.duration < right.duration)
+        || ((left.duration == right.duration) && (left.id < right.id));
+  }
+
   template< class T >
   T* insertBefore(List< T >& list, ListIterator< T > iterator, const T& value)
   {
@@ -59,6 +65,20 @@ namespace shaykhraziev
     while (!isEnd(iterator))
     {
       if (isLessMeetView(value, get(iterator)))
+      {
+        return insertBefore(values, iterator, value);
+      }
+      iterator = next(iterator);
+    }
+    return pushBack(values, value);
+  }
+
+  inline MeetView* insertOrderedDurationView(List< MeetView >& values, const MeetView& value)
+  {
+    ListIterator< MeetView > iterator = begin(values);
+    while (!isEnd(iterator))
+    {
+      if (isLessDurationView(value, get(iterator)))
       {
         return insertBefore(values, iterator, value);
       }
