@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE(less_filters_meetings)
 
   BOOST_TEST(shaykhraziev::executeLess(storage, "less 50 33", output));
   output.close();
-  BOOST_TEST(readTextFile(filename) == "32 11\n31 10\n");
+  BOOST_TEST(readTextFile(filename) == "31 10\n32 11\n");
 
   shaykhraziev::clearU2Storage(storage);
   std::remove(filename);

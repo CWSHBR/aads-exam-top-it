@@ -196,12 +196,12 @@ namespace
       if ((meeting.first == id) && shouldUseMeeting(meeting.duration, mode, time))
       {
         const shaykhraziev::MeetView view = { meeting.second, meeting.duration };
-        shaykhraziev::pushBack(views, view);
+        shaykhraziev::insertOrderedMeetView(views, view);
       }
       else if ((meeting.second == id) && shouldUseMeeting(meeting.duration, mode, time))
       {
         const shaykhraziev::MeetView view = { meeting.first, meeting.duration };
-        shaykhraziev::pushBack(views, view);
+        shaykhraziev::insertOrderedMeetView(views, view);
       }
       iterator = shaykhraziev::next(iterator);
     }
