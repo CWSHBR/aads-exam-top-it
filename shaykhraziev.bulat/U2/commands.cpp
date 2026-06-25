@@ -497,7 +497,9 @@ bool shaykhraziev::executeDeanon(U2Storage& storage, const std::string& line)
   return true;
 }
 
-bool shaykhraziev::executeOutPersons(U2Storage& storage, const std::string& line)
+bool shaykhraziev::executeOutPersons(U2Storage& storage,
+    const std::string& line,
+    std::ostream& result)
 {
   std::string filename;
   if (!parseFileCommand(line, "out-persons", filename))
@@ -510,6 +512,7 @@ bool shaykhraziev::executeOutPersons(U2Storage& storage, const std::string& line
     return false;
   }
   writePersons(output, storage.persons);
+  writePersons(result, storage.persons);
   return true;
 }
 
@@ -551,7 +554,7 @@ bool shaykhraziev::executeCommand(U2Storage& storage,
   }
   if (startsWith(line, "out-persons"))
   {
-    return executeOutPersons(storage, line);
+    return executeOutPersons(storage, line, output);
   }
   return false;
 }
