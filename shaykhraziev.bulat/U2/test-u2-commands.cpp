@@ -63,6 +63,21 @@ BOOST_AUTO_TEST_CASE(anons_empty_output_when_no_anons)
   std::remove(filename);
 }
 
+BOOST_AUTO_TEST_CASE(anons_empty_data_outputs_newline)
+{
+  shaykhraziev::U2Storage storage;
+  shaykhraziev::initU2Storage(storage);
+  const char* filename = "out/u2-anons-empty-data.txt";
+  std::ofstream output(filename);
+
+  BOOST_TEST(shaykhraziev::executeAnons(storage, output));
+  output.close();
+  BOOST_TEST(readTextFile(filename) == "\n");
+
+  shaykhraziev::clearU2Storage(storage);
+  std::remove(filename);
+}
+
 BOOST_AUTO_TEST_CASE(anons_sorted_output)
 {
   shaykhraziev::U2Storage storage;
@@ -266,6 +281,46 @@ BOOST_AUTO_TEST_CASE(greater_filters_meetings)
   BOOST_TEST(shaykhraziev::executeGreater(storage, "greater 50 33", output));
   output.close();
   BOOST_TEST(readTextFile(filename) == "31\n");
+
+  shaykhraziev::clearU2Storage(storage);
+  std::remove(filename);
+}
+
+BOOST_AUTO_TEST_CASE(less_greater_acceptance_format)
+{
+  shaykhraziev::U2Storage storage;
+  initCommandStorage(storage);
+  const bool known = true;
+  shaykhraziev::insert(storage.knownIds, static_cast< size_t >(28), known);
+  shaykhraziev::insert(storage.knownIds, static_cast< size_t >(41), known);
+  addMeeting(storage, 31, 33, 9);
+  addMeeting(storage, 41, 28, 80);
+  addMeeting(storage, 41, 32, 20);
+  addMeeting(storage, 41, 33, 10);
+  const char* filename = "out/u2-less-greater-acceptance.txt";
+  std::ofstream output(filename);
+
+  BOOST_TEST(shaykhraziev::executeLess(storage, "less 10 31", output));
+  BOOST_TEST(shaykhraziev::executeGreater(storage, "greater 9 41", output));
+  output.close();
+  BOOST_TEST(readTextFile(filename) == "33\n33\n32\n28\n");
+
+  shaykhraziev::clearU2Storage(storage);
+  std::remove(filename);
+}
+
+BOOST_AUTO_TEST_CASE(less_greater_empty_outputs_newline)
+{
+  shaykhraziev::U2Storage storage;
+  initCommandStorage(storage);
+  addMeeting(storage, 33, 32, 11);
+  const char* filename = "out/u2-less-greater-empty.txt";
+  std::ofstream output(filename);
+
+  BOOST_TEST(shaykhraziev::executeLess(storage, "less 1 33", output));
+  BOOST_TEST(shaykhraziev::executeGreater(storage, "greater 11 32", output));
+  output.close();
+  BOOST_TEST(readTextFile(filename) == "\n\n");
 
   shaykhraziev::clearU2Storage(storage);
   std::remove(filename);
