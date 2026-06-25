@@ -13,10 +13,6 @@ int main(int argc, char* argv[])
   bool hasOutput = false;
   std::string inputName;
   std::string outputName;
-  if (shaykhraziev::hasTooManyU1Args(argc))
-  {
-    return 0;
-  }
   if (!shaykhraziev::parseU1Args(argc, argv, hasInput, inputName, hasOutput, outputName))
   {
     return 1;
@@ -63,7 +59,10 @@ int main(int argc, char* argv[])
       output = &outputFile;
     }
     shaykhraziev::writePersons(*output, persons);
-    std::cerr << accepted << ' ' << ignored << '\n';
+    if ((accepted != 0) || (ignored != 0))
+    {
+      std::cerr << accepted << ' ' << ignored << '\n';
+    }
   }
   catch (const std::exception&)
   {
