@@ -11,6 +11,7 @@ namespace shaykhraziev
   bool readRestDescription(const std::string& line, size_t position, std::string& description);
   bool startsWith(const std::string& text, const char* prefix);
   bool parseFileArg(const std::string& argument, const char* prefix, std::string& filename);
+  bool hasTooManyU1Args(int argc);
   bool parseU1Args(int argc,
       char* argv[],
       bool& hasInput,

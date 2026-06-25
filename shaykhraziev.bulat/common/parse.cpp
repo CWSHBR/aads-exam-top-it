@@ -92,6 +92,11 @@ bool shaykhraziev::parseFileArg(const std::string& argument,
   return !filename.empty();
 }
 
+bool shaykhraziev::hasTooManyU1Args(int argc)
+{
+  return argc > 3;
+}
+
 bool shaykhraziev::parseU1Args(int argc,
     char* argv[],
     bool& hasInput,
@@ -103,7 +108,7 @@ bool shaykhraziev::parseU1Args(int argc,
   hasOutput = false;
   input.clear();
   output.clear();
-  if (argc > 3)
+  if (hasTooManyU1Args(argc))
   {
     return false;
   }
