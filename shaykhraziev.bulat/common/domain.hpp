@@ -24,6 +24,28 @@ namespace shaykhraziev
     size_t id;
     size_t duration;
   };
+
+  struct Date
+  {
+    size_t day;
+    size_t month;
+    size_t year;
+  };
+
+  struct DatedMeeting
+  {
+    Date date;
+    size_t first;
+    size_t second;
+    size_t duration;
+  };
+
+  struct DateRange
+  {
+    Date from;
+    Date to;
+    bool empty;
+  };
 }
 
 #endif
