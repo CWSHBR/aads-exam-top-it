@@ -29,6 +29,12 @@ namespace
     const shaykhraziev::Person person = { 31, "The Agent" };
     shaykhraziev::addPerson(storage.persons, storage.personsById, person);
   }
+
+  void addMeeting(shaykhraziev::U2Storage& storage, size_t first, size_t second, size_t duration)
+  {
+    const shaykhraziev::Meeting meeting = { first, second, duration };
+    shaykhraziev::pushBack(storage.meetings, meeting);
+  }
 }
 
 BOOST_AUTO_TEST_CASE(anons_empty_output_when_no_anons)
@@ -139,4 +145,100 @@ BOOST_AUTO_TEST_CASE(redesc_bad_quotes_is_invalid)
   BOOST_TEST(!shaykhraziev::executeRedesc(storage, "redesc 32 Known"));
 
   shaykhraziev::clearU2Storage(storage);
+}
+
+BOOST_AUTO_TEST_CASE(meets_unknown_id_is_invalid)
+{
+  shaykhraziev::U2Storage storage;
+  initCommandStorage(storage);
+  const char* filename = "out/u2-meets-unknown.txt";
+  std::ofstream output(filename);
+
+  BOOST_TEST(!shaykhraziev::executeMeets(storage, "meets 100", output));
+
+  shaykhraziev::clearU2Storage(storage);
+  std::remove(filename);
+}
+
+BOOST_AUTO_TEST_CASE(meets_without_values_outputs_nothing)
+{
+  shaykhraziev::U2Storage storage;
+  initCommandStorage(storage);
+  const char* filename = "out/u2-meets-empty.txt";
+  std::ofstream output(filename);
+
+  BOOST_TEST(shaykhraziev::executeMeets(storage, "meets 31", output));
+  output.close();
+  BOOST_TEST(readTextFile(filename) == "");
+
+  shaykhraziev::clearU2Storage(storage);
+  std::remove(filename);
+}
+
+BOOST_AUTO_TEST_CASE(meets_outputs_sorted_values)
+{
+  shaykhraziev::U2Storage storage;
+  initCommandStorage(storage);
+  addMeeting(storage, 33, 31, 99);
+  addMeeting(storage, 33, 32, 11);
+  addMeeting(storage, 31, 33, 10);
+  const char* filename = "out/u2-meets-sorted.txt";
+  std::ofstream output(filename);
+
+  BOOST_TEST(shaykhraziev::executeMeets(storage, "meets 33", output));
+  output.close();
+  BOOST_TEST(readTextFile(filename) == "31 10\n31 99\n32 11\n");
+
+  shaykhraziev::clearU2Storage(storage);
+  std::remove(filename);
+}
+
+BOOST_AUTO_TEST_CASE(less_filters_meetings)
+{
+  shaykhraziev::U2Storage storage;
+  initCommandStorage(storage);
+  addMeeting(storage, 33, 31, 99);
+  addMeeting(storage, 33, 32, 11);
+  addMeeting(storage, 31, 33, 10);
+  const char* filename = "out/u2-less.txt";
+  std::ofstream output(filename);
+
+  BOOST_TEST(shaykhraziev::executeLess(storage, "less 50 33", output));
+  output.close();
+  BOOST_TEST(readTextFile(filename) == "31 10\n32 11\n");
+
+  shaykhraziev::clearU2Storage(storage);
+  std::remove(filename);
+}
+
+BOOST_AUTO_TEST_CASE(greater_filters_meetings)
+{
+  shaykhraziev::U2Storage storage;
+  initCommandStorage(storage);
+  addMeeting(storage, 33, 31, 99);
+  addMeeting(storage, 33, 32, 11);
+  addMeeting(storage, 31, 33, 10);
+  const char* filename = "out/u2-greater.txt";
+  std::ofstream output(filename);
+
+  BOOST_TEST(shaykhraziev::executeGreater(storage, "greater 50 33", output));
+  output.close();
+  BOOST_TEST(readTextFile(filename) == "31 99\n");
+
+  shaykhraziev::clearU2Storage(storage);
+  std::remove(filename);
+}
+
+BOOST_AUTO_TEST_CASE(meeting_query_rejects_bad_time)
+{
+  shaykhraziev::U2Storage storage;
+  initCommandStorage(storage);
+  const char* filename = "out/u2-bad-time.txt";
+  std::ofstream output(filename);
+
+  BOOST_TEST(!shaykhraziev::executeLess(storage, "less bad 33", output));
+  BOOST_TEST(!shaykhraziev::executeGreater(storage, "greater 10 missing", output));
+
+  shaykhraziev::clearU2Storage(storage);
+  std::remove(filename);
 }

@@ -10,6 +10,9 @@ namespace shaykhraziev
   bool executeAnons(U2Storage& storage, std::ostream& output);
   bool executeDesc(U2Storage& storage, const std::string& line, std::ostream& output);
   bool executeRedesc(U2Storage& storage, const std::string& line);
+  bool executeMeets(U2Storage& storage, const std::string& line, std::ostream& output);
+  bool executeLess(U2Storage& storage, const std::string& line, std::ostream& output);
+  bool executeGreater(U2Storage& storage, const std::string& line, std::ostream& output);
 }
 
 #endif
