@@ -349,6 +349,29 @@ BOOST_AUTO_TEST_CASE(deanon_replaces_anon_and_removes_self_meetings)
   shaykhraziev::clearU2Storage(storage);
 }
 
+BOOST_AUTO_TEST_CASE(deanon_acceptance_scenario)
+{
+  shaykhraziev::U2Storage storage;
+  initCommandStorage(storage);
+  const bool known = true;
+  shaykhraziev::insert(storage.knownIds, static_cast< size_t >(41), known);
+  addMeeting(storage, 33, 41, 10);
+  addMeeting(storage, 33, 32, 11);
+  addMeeting(storage, 33, 31, 10);
+  addMeeting(storage, 32, 33, 99);
+  const char* filename = "out/u2-deanon-acceptance.txt";
+  std::ofstream output(filename);
+
+  BOOST_TEST(shaykhraziev::executeDeanon(storage, "deanon 33 31"));
+  BOOST_TEST(shaykhraziev::executeAnons(storage, output));
+  BOOST_TEST(shaykhraziev::executeMeets(storage, "meet 31", output));
+  output.close();
+  BOOST_TEST(readTextFile(filename) == "32\n41\n32 11\n32 99\n41 10\n");
+
+  shaykhraziev::clearU2Storage(storage);
+  std::remove(filename);
+}
+
 BOOST_AUTO_TEST_CASE(deanon_rejects_described_first_id)
 {
   shaykhraziev::U2Storage storage;
